@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+    * {
+        margin: 0;
+        padding: 0;
+    }
+
+    #produtos{
+        width: 78%;
+        display: flex;
+        text-align: center;
+        justify-content: space-evenly;
+        flex-wrap: wrap ;
+        align-content: space-between;
+        margin: auto;
+        padding: 2%;
+        
+    }
+    .produto{
+        width: 20%;
+        margin: 2%;
+        border: 1px solid #ccc;
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        
+    }
+    .produto img{
+        width: 90%;
+        max-height: 80%;
+        box-shadow: 7px 5px 5px #ccc;
+        margin-bottom: 5%;
+    }
+    #form{
+        width: 80%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        margin: auto;
+        padding: 3% 0;
+    }
+    #form div{
+        margin: 2%;
+
+    }
+    #popup{
+        position: fixed;
+        top: 100px; left: 800px; 
+        margin: auto;
+        width: 200px;
+        height: 100px;
+        box-shadow: 7px 5px 5px rgb(111, 110, 110);
+        border-radius: 15px;
+        background-color: #CCC;
+        text-align: center;
+    }
+    #popup:after{ /*Triangulo*/
+        content: "";
+        width: 0;
+        height: 0;
+        position: absolute;
+        border-left: 20px solid transparent;
+        border-right: 20px solid transparent;
+        /*Faz seta "apontar para baixo. Definir o valor como 'top' fará ela "apontar para cima" */
+        /*Aqui entra a cor da "aba" do balão */
+        border-bottom: 20px solid #CCC;
+        top: -20px; /*localização. Experimente alterar para 'bottom'*/
+        left: 20%;
+    }
+    #popup a{
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        text-decoration: none;
+
+    }
+    #popup p{
+        margin-top: 20%;
+
+    }
+    </style>
+    <script>
+        function fechar(){
+            document.getElementById('popup').style.display = 'none';
+        }
+    </script>
+</head>
+<body>
+    <div id="form">
+        <h3>Adicione um produto</h3>
+        <div>
+            <input id="add-name" placeholder="Nome">
+            <input id="add-price" placeholder="Preço">
+            <input id="add-image" placeholder="URL da Imagem">
+            <button id="add-btn" onclick="addProdutos()">Adicionar</button>
+        </div>
+        <div id="popup">
+            <a href="javascript: fechar();">X</a>
+            <p>Adicione a URL da imagem</p>
+            
+        </div>
+    </div>
+    <div id="produtos"></div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.3.2/firebase-app.js"> </script>
+    <script src="https://www.gstatic.com/firebasejs/8.3.2/firebase-firestore.js"> </script>
+
+    <script>
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDj2D9z0lZCybuSSChfuFi54CRJSUtg_4Q",
+            authDomain: "app-db-4ef9e.firebaseapp.com",
+            projectId: "app-db-4ef9e",
+            storageBucket: "app-db-4ef9e.appspot.com",
+            messagingSenderId: "299618980036",
+            appId: "1:299618980036:web:facad82c919f3c96333991"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+
+        const db = firebase.firestore();
+
+        function renderProdutos(){
+            db.collection('produtos')
+            .get()
+            .then((col) => {
+                const container = document.getElementById('produtos');
+                container.innerHTML= '';
+                col.forEach((doc)=>{
+                container.innerHTML +=`
+                <div class="produto">
+                    <img id="edit-name-${doc.id}" src="${doc.data().image}" >
+                    <p id="edit-name-${doc.id}" > ${doc.data().name}</p>
+                    <p id="edit-name-${doc.id}" >R$ ${doc.data().price}</p>
+                </div>
+                `;
+            })
+            })
+        }
+
+        renderProdutos();
+
+
+
+        function addProdutos(){
+
+            const nameEl = document.getElementById('add-name');
+            const priceEl = document.getElementById('add-price');
+            const imageEl = document.getElementById('add-image');
+
+
+            if(nameEl.value == '' || priceEl.value == ''){
+                return 
+            }
+
+            db.collection('produtos')
+            .add({
+                name: nameEl.value,
+                price: priceEl.value,
+                image: imageEl.value,
+            })
+            .then(()=> {
+                renderProdutos();
+            });
+
+            document.getElementById('add-name').value = '';
+            document.getElementById('add-price').value = '';
+            document.getElementById('add-image').value = '';
+
+        }
+
+    </script>
+</body>
+</html>
